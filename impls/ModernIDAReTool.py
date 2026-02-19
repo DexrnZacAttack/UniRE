@@ -21,7 +21,7 @@ class ModernIDAReTool(IDAReTool):
     def __init__(self):
         super().__init__()
 
-        self.environment_type = EnvironmentType.ModernIDA
+        self.environment_type = EnvironmentType.MODERN_IDA
 
         self._logger = logging.getLogger(f"ReTool.{self.environment_type.name}")
 
