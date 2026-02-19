@@ -20,6 +20,11 @@ from ghidra.app.cmd.function import DeleteFunctionCmd
 from ghidra.program.model.address import AddressSet
 from ghidra.program.database.mem import AddressSourceInfo
 from ghidra.util.task import TaskMonitor
+from ghidra.app.util import MemoryBlockUtils 
+from ghidra.app.util.bin import FileByteProvider
+from ghidra.formats.gfilesystem import FSRL, FileSystemService
+from java.nio.file import AccessMode
+from java.io import File
 
 from java.io import FileInputStream
 
@@ -264,9 +269,18 @@ class GhidraReTool(IReTool):
         size = range.end_addr - range.start_addr
 
         if real_addr is not None:
-            fis = FileInputStream(self.program.getExecutablePath())
+            # everytime I try to look for info on ghidra api I just get bombarded with results about random books that people are selling
+            f = File(self.program.getExecutablePath())
+            b = MemoryBlockUtils.createFileBytes(
+                self.program,
+                FileByteProvider(f, FileSystemService.getInstance().getLocalFSRL(f), AccessMode.READ),
+                real_addr,
+                size,
+                TaskMonitor.DUMMY
+            )
+
             sect: MemoryBlock = self.memory.createInitializedBlock(
-                name, start, fis, size, TaskMonitor.DUMMY, overlay
+                name, start, b, 0, size, overlay
             )
         else:
             sect: MemoryBlock = self.memory.createUninitializedBlock(
